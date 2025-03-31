@@ -15,9 +15,6 @@ public class TestPlayerMove : NetworkBehaviour
             cameraTransform.gameObject.SetActive(false);
             return;
         }
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
     private void Update()
     {
@@ -28,6 +25,14 @@ public class TestPlayerMove : NetworkBehaviour
 
         Move();
         CameraRotate();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(G.MainMenu.MenuIsOpen())
+                G.MainMenu.HideMenu();
+            else
+                G.MainMenu.ShowMenu();
+        }
     }
 
 

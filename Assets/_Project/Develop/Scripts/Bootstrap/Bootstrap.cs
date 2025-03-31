@@ -11,6 +11,7 @@ public class Bootstrap : MonoBehaviour
 
     private async UniTask Init()
     {
+        G.SteamLobbyManager.CreateLobby();
         await SceneManager.LoadSceneAsync(_loadingScene);
     }
 }
