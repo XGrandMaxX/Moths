@@ -27,6 +27,14 @@ MonoBehaviour:
     m_Key: ExitButton
     m_Metadata:
       m_Items: []
+  - m_Id: 501848202907648
+    m_Key: MenuTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 538970855149568
+    m_Key: GoToMainMenuButton
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
