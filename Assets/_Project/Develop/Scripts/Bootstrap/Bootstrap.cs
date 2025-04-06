@@ -15,7 +15,7 @@ public class Bootstrap : MonoBehaviour
     {
         await UniTask.Delay(TimeSpan.FromSeconds(initDelay), cancellationToken: this.GetCancellationTokenOnDestroy());
 
-        G.SteamLobbyManager.CreateLobby();
+        //G.SteamLobbyManager.CreateLobby();
         await SceneManager.LoadSceneAsync(loadingScene);
     }
 }

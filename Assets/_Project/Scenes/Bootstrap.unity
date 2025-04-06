@@ -654,50 +654,6 @@ RectTransform:
   m_AnchoredPosition: {x: -115, y: -80}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &597321421
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 597321422}
-  - component: {fileID: 597321423}
-  m_Layer: 0
-  m_Name: SteamManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
---- !u!4 &597321422
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 597321421}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &597321423
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 597321421}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef4bffeda13d7a748973ff9204401c07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &661741573
 GameObject:
   m_ObjectHideFlags: 0
@@ -1568,7 +1524,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f3ff2d6781dfb44aba4106cc0d21ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _loadingScene: MainMenu
+  loadingScene: MainMenu
+  initDelay: 0
 --- !u!1 &1139220335
 GameObject:
   m_ObjectHideFlags: 0
@@ -1600,7 +1557,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Channels: 0200000001000000
-  Timeout: 25
+  Timeout: 60
   AllowSteamRelay: 1
   UseNextGenSteamNetworking: 1
 --- !u!114 &1139220340
@@ -1617,22 +1574,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  headlessStartMode: 1
+  headlessStartMode: 0
   editorAutoStart: 0
   sendRate: 60
-  offlineScene: Assets/_Project/Scenes/Bootstrap.unity
-  onlineScene: Assets/_Project/Scenes/Maxim/MaximTestScene.unity
+  offlineScene: 
+  onlineScene: 
   offlineSceneLoadDelay: 0
   transport: {fileID: 1139220336}
   networkAddress: localhost
   maxConnections: 100
-  disconnectInactiveConnections: 1
-  disconnectInactiveTimeout: 25
+  disconnectInactiveConnections: 0
+  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 7044066215535506245, guid: cfd68dc1b5a69cd47a67f91502a8c27a,
     type: 3}
   autoCreatePlayer: 1
-  playerSpawnMethod: 1
+  playerSpawnMethod: 0
   spawnPrefabs: []
   exceptionsDisconnect: 1
   snapshotSettings:
@@ -2778,10 +2735,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1912473018}
-  - component: {fileID: 1912473019}
-  - component: {fileID: 1912473020}
+  - component: {fileID: 1912473021}
   m_Layer: 0
-  m_Name: SteamLobbyManager
+  m_Name: SteamLobby
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2803,7 +2759,7 @@ Transform:
   - {fileID: 2119081989}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1912473019
+--- !u!114 &1912473021
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2812,30 +2768,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1912473017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03e4da7138b83f548b558869a7217387, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
-  defaultTexture: {fileID: 2800000, guid: daa49a1f06460a04b9827dd6f0bace08, type: 3}
-  playerSlots:
-  - <Avatar>k__BackingField: {fileID: 789094950}
-    <Name>k__BackingField: {fileID: 1150156545}
-  - <Avatar>k__BackingField: {fileID: 1366060441}
-    <Name>k__BackingField: {fileID: 662278890}
-  - <Avatar>k__BackingField: {fileID: 315152621}
-    <Name>k__BackingField: {fileID: 1273471128}
-  - <Avatar>k__BackingField: {fileID: 211816479}
-    <Name>k__BackingField: {fileID: 1926860929}
---- !u!114 &1912473020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1912473017}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b5115713213b3f448c7d53c038aa9bc, type: 3}
+  m_Script: {fileID: 11500000, guid: ef4bffeda13d7a748973ff9204401c07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1926860928
@@ -3047,7 +2980,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2135517855}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3572e2c78e1b574e8c114f77b4c7dd5, type: 3}
+  m_Script: {fileID: 11500000, guid: 752b114176ab67c458af0c5f54bfa45d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
@@ -3185,4 +3118,3 @@ SceneRoots:
   - {fileID: 1139220341}
   - {fileID: 2135517856}
   - {fileID: 1912473018}
-  - {fileID: 597321422}

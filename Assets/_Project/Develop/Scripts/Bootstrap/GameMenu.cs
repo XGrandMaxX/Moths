@@ -1,5 +1,6 @@
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameMenu : MonoBehaviour
@@ -9,7 +10,6 @@ public class GameMenu : MonoBehaviour
     [field: SerializeField] public Button SettingsGameButton { get; private set; }
     [field: SerializeField] public Button ExitGameButton { get; private set; }
     [field: SerializeField] public Button GoToMenuButton { get; private set; }
-
     #region Initialzie
     private void Awake()
     {
@@ -20,17 +20,23 @@ public class GameMenu : MonoBehaviour
         else
         {
             G.MainMenu = this;
-            if (dontDestroyOnLoad)
+            if(dontDestroyOnLoad)
                 DontDestroyOnLoad(gameObject);
         }
     }
-    void Start() => SubscribeEvents();
-    private void OnDestroy() => UnsubscribeEvents();
+    void Start()
+    {
+        SubscribeEvents();
+    }
+    private void OnDestroy()
+    {
+        UnsubscribeEvents();
+    }
     private void SubscribeEvents()
     {
-        ExitGameButton.onClick.AddListener(G.SteamLobbyManager.ExitGame);
-        StartGameButton.onClick.AddListener(G.SteamLobbyManager.StartGame);
-        GoToMenuButton.onClick.AddListener(G.SteamLobbyManager.ExitToMenu);
+        //ExitGameButton.onClick.AddListener(G.SteamLobbyManager.ExitGame);
+        //StartGameButton.onClick.AddListener(G.SteamLobbyManager.StartGame);
+        //GoToMenuButton.onClick.AddListener(G.SteamLobbyManager.ExitToMenu);
         //SettingsGameButton.onClick.AddListener();
     }
     private void UnsubscribeEvents()
@@ -41,58 +47,36 @@ public class GameMenu : MonoBehaviour
         SettingsGameButton.onClick.RemoveAllListeners();
     }
     #endregion
-
-    #region Menu Logic
-    public void HideMenu(bool cursorState = false)
+    public void HideMenu()
     {
         if (MenuIsNull())
             return;
 
-        SetButtonsActive(false);
-        CursorSetActive(cursorState);
+        ExitGameButton.gameObject.SetActive(false);
+        StartGameButton.gameObject.SetActive(false);
+        SettingsGameButton.gameObject.SetActive(false);
+        GoToMenuButton.gameObject.SetActive(false);
     }
-    public void ShowMenu(bool cursorState = true)
+    public void ShowMenu()
     {
         if (MenuIsNull())
             return;
 
-        SetButtonsActive(true);
+        //SettingsGameButton.gameObject.SetActive(true);
 
-        if (G.SteamLobbyManager.SteamLobbyNetwork.IsOfflineScene() || G.SteamLobbyManager.SteamLobbyNetwork.IsMainMenuScene())
-        {
-            SetMainMenuButtonsActive(true);
-            GoToMenuButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            SetMainMenuButtonsActive(false);
-            GoToMenuButton.gameObject.SetActive(true);
-        }
-
-        CursorSetActive(cursorState);
-    }
-    #endregion
-
-    #region Handlers
-    public void CursorSetActive(bool value)
-    {
-        Cursor.visible = value;
-        Cursor.lockState = value ? CursorLockMode.Confined : CursorLockMode.Locked;
-    }
-    private void SetButtonsActive(bool active)
-    {
-        StartGameButton.gameObject.SetActive(active);
-        SettingsGameButton.gameObject.SetActive(active);
-        ExitGameButton.gameObject.SetActive(active);
-        GoToMenuButton.gameObject.SetActive(active);
-    }
-    private void SetMainMenuButtonsActive(bool active)
-    {
-        StartGameButton.gameObject.SetActive(active);
-        ExitGameButton.gameObject.SetActive(active);
+        //if (G.SteamLobbyManager.SteamLobbyNetwork.IsOfflineScene() || G.SteamLobbyManager.SteamLobbyNetwork.IsMainMenuScene())
+        //{
+        //    ExitGameButton.gameObject.SetActive(true);
+        //    GoToMenuButton.gameObject.SetActive(false);
+        //    StartGameButton.gameObject.SetActive(true);
+        //}
+        //else
+        //{
+        //    ExitGameButton.gameObject.SetActive(false);
+        //    GoToMenuButton.gameObject.SetActive(true);
+        //    StartGameButton.gameObject.SetActive(false);
+        //}
     }
     public bool MenuIsOpen() => SettingsGameButton.gameObject.activeInHierarchy || GoToMenuButton.gameObject.activeInHierarchy;
     private bool MenuIsNull() => SettingsGameButton == null || ExitGameButton == null || StartGameButton == null || GoToMenuButton == null;
-
-    #endregion
 }
