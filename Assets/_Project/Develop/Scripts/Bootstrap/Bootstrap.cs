@@ -3,19 +3,37 @@ using NaughtyAttributes;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using System;
+using Steamworks;
 
 public class Bootstrap : MonoBehaviour
 {
+    [Header("Bootstrap")]
     [SerializeField, Scene] private string loadingScene;
-    [SerializeField, Min(0)] private float initDelay;
+    [SerializeField, MinValue(0), MaxValue(3)] private float sceneLoadDelay = 0;
+
+    [Header("Lobby")]
+    [SerializeField] private ELobbyType LobbyTypeOnCreate;
+
+    [Header("Localization")]
+    [SerializeField] private ExistingLanguages baseLang;
+    private enum ExistingLanguages { ru, en }
 
     public async void Start() => await Init();
 
     private async UniTask Init()
     {
-        await UniTask.Delay(TimeSpan.FromSeconds(initDelay), cancellationToken: this.GetCancellationTokenOnDestroy());
+        G.Localization = LocalizationManager.Instance;
 
-        //G.SteamLobbyManager.CreateLobby();
+        await G.Localization.SetLanguageAsync(baseLang.ToString());
+
+        await LoadGameAsync();
+    }
+
+    private async UniTask LoadGameAsync()
+    {
+        G.SteamLobby.CreateNewLobby(LobbyTypeOnCreate);
+
+        await UniTask.Delay(TimeSpan.FromSeconds(sceneLoadDelay), cancellationToken: this.GetCancellationTokenOnDestroy());
         await SceneManager.LoadSceneAsync(loadingScene);
     }
 }
