@@ -8,6 +8,7 @@ public class TestPlayerMove : NetworkBehaviour
     [SerializeField] private float speed = 3f;
     private float verticalRotation = 0f;
 
+
     private void Start()
     {
         if (!isLocalPlayer)
@@ -28,10 +29,10 @@ public class TestPlayerMove : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if(G.MainMenu.MenuIsOpen())
-                G.MainMenu.HideMenu();
+            if(G.GameMenu.MenuIsOpen())
+                G.GameMenu.HideMenu();
             else
-                G.MainMenu.ShowMenu();
+                G.GameMenu.ShowMenu();
         }
     }
 
