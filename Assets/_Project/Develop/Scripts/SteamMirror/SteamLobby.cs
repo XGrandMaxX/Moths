@@ -1,8 +1,10 @@
+using Cysharp.Threading.Tasks;
 using Mirror;
 using NaughtyAttributes;
 using Steamworks;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -69,23 +71,64 @@ public class SteamLobby : MonoBehaviour
         NetworkManager.StopClient();
         Application.Quit();
     }
-    public void GoToMenu()
+    public async void GoToMenu()
     {
         if (current_lobbyID != 0)
         {
             if (IsLobbyHost())
             {
-                HostCloseLobby();
+                await HostCloseLobby();
                 return;
             }
+            ClearAllSlots();
             SteamMatchmaking.LeaveLobby(new CSteamID(current_lobbyID));
+            current_lobbyID = 0;
         }
 
-        NetworkManager.StopClient();
+        if (NetworkServer.active && NetworkClient.active)
+        {
+            NetworkManager.StopHost();
+        }
+        else if (NetworkServer.active)
+        {
+            NetworkManager.StopServer();
+        }
+        else if (NetworkClient.active)
+        {
+            NetworkManager.StopClient();
+        }
+
+        ReInitializeCallbacks();
+
         SceneManager.LoadScene(NetworkManager.offlineScene);
     }
+    private void ReInitializeCallbacks()
+    {
+        if (lobbyCreated != null) lobbyCreated.Dispose();
+        if (gameLobbyJoinRequested != null) gameLobbyJoinRequested.Dispose();
+        if (lobbyEntered != null) lobbyEntered.Dispose();
+        if (Callback_lobbyInfo != null) Callback_lobbyInfo.Dispose();
+        if (lobbyChatUpdate != null) lobbyChatUpdate.Dispose();
 
-    public void HostCloseLobby()
+        if (SteamManager.Initialized)
+        {
+            try
+            {
+                lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+                gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
+                lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+                lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+                Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
+
+                Debug.Log("Steam callbacks successfully reinitialized");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error reinitializing Steam callbacks: {e.Message}");
+            }
+        }
+    }
+    public async Task HostCloseLobby()
     {
         if (!IsLobbyHost())
         {
@@ -100,18 +143,20 @@ public class SteamLobby : MonoBehaviour
                 "LobbyClosing",
                 "true"
             );
-
-            Invoke(nameof(FinishCloseLobby), 0.5f);
+            await FinishCloseLobby();
         }
         else
         {
-            FinishCloseLobby();
+           await FinishCloseLobby();
         }
     }
-    private void FinishCloseLobby()
+    private async UniTask FinishCloseLobby()
     {
+        await UniTask.Delay(1000, cancellationToken: this.GetCancellationTokenOnDestroy());
+
         if (current_lobbyID != 0)
         {
+            ClearAllSlots();
             SteamMatchmaking.LeaveLobby(new CSteamID(current_lobbyID));
             current_lobbyID = 0;
         }
@@ -125,7 +170,6 @@ public class SteamLobby : MonoBehaviour
             NetworkManager.StopClient();
         }
 
-        // Возвращаемся на bootstrap сцену и создаем новое пустое лобби
         SceneManager.LoadScene(BOOTSTRAP_SCENE);
     }
 
@@ -191,15 +235,23 @@ public class SteamLobby : MonoBehaviour
     {
         if (!SteamManager.Initialized) return;
 
-        lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-        gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
-        lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
-        lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
-        Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
+        try
+        {
+            lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+            gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
+            lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+            lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+            Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnLobbyDataUpdate);
 
-        SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            InitializePlayerSlots();
 
-        InitializePlayerSlots();
+            Debug.Log("Steam callbacks successfully initialized");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error initializing Steam callbacks: {e.Message}");
+        }
     }
     private void InitializePlayerSlots()
     {
@@ -274,8 +326,8 @@ public class SteamLobby : MonoBehaviour
             {
                 NetworkManager.StopClient();
             }
-
-            // Возвращаемся на bootstrap сцену
+            G.GameMenu.ShowMenu();
+            UpdatePlayerList();
             SceneManager.LoadScene(BOOTSTRAP_SCENE);
             return;
         }
@@ -298,7 +350,7 @@ public class SteamLobby : MonoBehaviour
         current_lobbyID = callback.m_ulSteamIDLobby;
 
         Debug.Log("OnLobbyEntered for lobby with id: " + current_lobbyID.ToString());
-
+        UpdatePlayerList();
 
         //Проверяем, если мы хост, не нужно запускать клиент
         if (NetworkServer.active)
@@ -377,13 +429,21 @@ public class SteamLobby : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if(scene.path == NetworkManager.offlineScene)
+        Debug.Log($"Scene loaded: {scene.name}, path: {scene.path}");
+
+        if (scene.path == NetworkManager.offlineScene)
         {
+            Debug.Log("Offline scene loaded, showing menu");
             G.GameMenu.ShowMenu();
-            UpdatePlayerList();
+
+            if (current_lobbyID != 0)
+            {
+                UpdatePlayerList();
+            }
         }
-        else if(scene.path == NetworkManager.onlineScene)
+        else if (scene.path == NetworkManager.onlineScene)
         {
+            Debug.Log("Online scene loaded, hiding menu");
             G.GameMenu.HideMenu();
         }
     }
@@ -498,8 +558,13 @@ public class SteamLobby : MonoBehaviour
 
     public void ClearAllSlots()
     {
-        foreach (var slot in PlayerList)
+        for (int i = 0; i < PlayerList.Count; i++)
         {
+            var slot = PlayerList[i];
+
+            if (i == 0)
+                continue;
+
             slot.IsOccupied = false;
             slot.SteamID = CSteamID.Nil;
 

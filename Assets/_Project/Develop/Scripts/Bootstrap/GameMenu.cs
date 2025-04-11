@@ -9,6 +9,7 @@ public class GameMenu : MonoBehaviour
     [field: SerializeField] public Button SettingsGameButton { get; private set; }
     [field: SerializeField] public Button ExitGameButton { get; private set; }
     [field: SerializeField] public Button GoToMenuButton { get; private set; }
+    
     #region Initialzie
     private void Awake()
     {
@@ -24,9 +25,10 @@ public class GameMenu : MonoBehaviour
         }
     }
     private void Start() => SubscribeEvents();
-    private void OnDestroy() => UnsubscribeEvents();
     private void SubscribeEvents()
     {
+        UnsubscribeEvents();
+
         ExitGameButton.onClick.AddListener(G.SteamLobby.ExitGame);
         StartGameButton.onClick.AddListener(G.SteamLobby.StartGame);
         GoToMenuButton.onClick.AddListener(G.SteamLobby.GoToMenu);
